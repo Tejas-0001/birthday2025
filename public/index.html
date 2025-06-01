@@ -190,7 +190,7 @@
 </head>
 <body>
     <video id="fullscreen-video" style="display:none;" playsinline>
-        <source src="./public/wish.mp4" type="video/mp4" />
+        <source src="./wish.mp4" type="video/mp4" />
         Your browser does not support HTML5 video.
     </video>
     
@@ -702,7 +702,7 @@
                 this.setupFreelookControls(renderer.domElement);
                 this.createClouds();
                 this.createRain();
-                this.playAudio('./public/freefall-music.mp3'); // User needs to provide this file
+                this.playAudio('./freefall-music.mp3'); // User needs to provide this file
                 
                 // Start timer
                 this.startTime = Date.now();
@@ -1379,7 +1379,7 @@
             
             playChoiceMusic(option) {
                 try {
-                    const musicFile = option === 'a' ? './public/magical-choice.mp3' : './public/space-choice.mp3';
+                    const musicFile = option === 'a' ? './magical-choice.mp3' : './space-choice.mp3';
                     const audio = new Audio(musicFile);
                     audio.loop = true;
                     audio.play();
@@ -1538,7 +1538,7 @@
             
             playAudio(filename) {
                 try {
-                    const audio = new Audio("./public/final.mp3");
+                    const audio = new Audio("./final.mp3");
                     audio.loop = true;
                     audio.play();
                     this.currentAudio = audio;
