@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Senya's 23rd Birthday Bash 🎂⭐</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #f0f0f0;
+            color: #444;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        #ui-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        .scene-card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(240,240,240,0.9));
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            pointer-events: auto;
+            opacity: 0;
+            transition: all 0.5s ease;
+            border: 2px solid rgba(255,255,255,0.4);
+        }
+        
+        .scene-card.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.02);
+        }
+        
+        .scene-card img {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        .scene-card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .scene-card h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .scene-card p {
+            margin: 0 0 25px 0;
+            color: #666;
+            line-height: 1.6;
+            font-size: 16px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .next-btn, .option-btn {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .next-btn:hover, .option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .play-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .play-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        
+        .mobile-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            pointer-events: auto;
+        }
+        
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+        
+        .instructions {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            max-width: 250px;
+            pointer-events: auto;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .instructions.show {
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .scene-card {
+                max-width: 90%;
+                padding: 20px;
+            }
+            
+            .play-button {
+                top: 10px;
+                left: 10px;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            
+            .instructions {
+                top: 60px;
+                left: 10px;
+                right: 10px;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <video id="fullscreen-video" style="display:none;" playsinline>
+        <source src="/public/wish.mp4" type="video/mp4" />
+        Your browser does not support HTML5 video.
+    </video>
+    
+    <div id="ui-container">
+        <button id="play-button" class="play-button">🎥 Birthday Video</button>
+        
+        <div id="instructions" class="instructions">
+            <strong>Controls:</strong><br>
+            Desktop: Mouse to look around, scroll to zoom<br>
+            Mobile: Touch and drag to look, pinch to zoom
+        </div>
+        
+        <div id="scene-card" class="scene-card">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Cdefs%3E%3ClinearGradient id='default' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23667eea;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23764ba2;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='300' height='200' fill='url(%23default)'/%3E%3Ctext x='150' y='100' font-family='Arial' font-size='18' fill='white' text-anchor='middle' dy='.3em'%3EDefault Preview%3C/text%3E%3C/svg%3E" alt="Next Scene">
+            <h3 id="card-title">Welcome to Your Journey!</h3>
+            <p id="card-description">Ready to begin an amazing adventure? Click next to start exploring!</p>
+            <button id="next-btn" class="next-btn">Next →</button>
+        </div>
+        
+        <div class="mobile-controls">
+            <button class="control-btn" id="camera-btn" title="Camera Mode">📷</button>
+            <button class="control-btn" id="reset-btn" title="Reset View">🔄</button>
+            <button class="control-btn" id="info-btn" title="Toggle Info">ℹ️</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        
+        // Scene Management System
+        class SceneManager {
+            constructor() {
+                this.currentSceneIndex = 0;
+                this.scenes = [];
+                this.renderer = null;
+                this.camera = null;
+                this.audioContext = null;
+                this.currentAudio = null;
+                this.sceneTransitions = [
+                    {
+                        title: "Falling In love",
+                        description: "Keep Your Eyes closed for 60 Seconds 😊",
+                        action: "next"
+                    },
+                    {
+                        title: "Heaven Intertwined",
+                        description: "Our Paths will Converge 😇",
+                        action: "next"
+                    },
+                    {
+                        title: "Impression left on sands of time",
+                        description: "Wherever you will go you will always find me 🥰",
+                        action: "next"
+                    },
+                    {
+                        title: "Lady Senya's will",
+                        description: "Your choice will be Respected and taken care of 😁",
+                        action: "choose"
+                    },
+                    {
+                        title: "Well Well Look who's here",
+                        description: "Xavier aaaaaaaa!!!💅🤗",
+                        action: "next"
+                    }
+                ];
+                this.init();
+            }
+            
+            init() {
+                this.setupRenderer();
+                this.setupAudio();
+                this.setupEventListeners();
+                this.createScenes();
+                this.hideSceneCard();
+            }
+            
+            setupRenderer() {
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.setPixelRatio(window.devicePixelRatio);
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                document.body.appendChild(this.renderer.domElement);
+                
+                window.addEventListener('resize', () => this.onWindowResize());
+            }
+            
+            setupAudio() {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            setupEventListeners() {
+                // Video controls
+                document.getElementById('play-button').addEventListener('click', () => this.playVideo());
+                document.addEventListener('fullscreenchange', () => this.onFullscreenChange());
+                
+                // Scene navigation
+                document.getElementById('next-btn').addEventListener('click', () => this.nextScene());
+                
+                // Mobile controls
+                document.getElementById('camera-btn').addEventListener('click', () => this.toggleCameraMode());
+                document.getElementById('reset-btn').addEventListener('click', () => this.resetView());
+                document.getElementById('info-btn').addEventListener('click', () => this.toggleInstructions());
+            }
+            
+            async playVideo() {
+                const video = document.getElementById('fullscreen-video');
+                video.style.display = 'block';
+                
+                try {
+                    await video.play();
+                    if (video.requestFullscreen) {
+                        await video.requestFullscreen();
+                    } else if (video.webkitRequestFullscreen) {
+                        await video.webkitRequestFullscreen();
+                    } else if (video.msRequestFullscreen) {
+                        await video.msRequestFullscreen();
+                    }
+                } catch (err) {
+                    console.error('Fullscreen video playback failed:', err);
+                }
+            }
+            
+            onFullscreenChange() {
+                if (!document.fullscreenElement) {
+                    document.getElementById('fullscreen-video').style.display = 'none';
+                    // Show freefall card immediately after video exits
+                    this.currentSceneIndex = 0; // We're currently on text scene
+                    this.showSceneCard(); // Show freefall card
+                }
+            }
+            
+            createScenes() {
+                this.scenes = [
+                    new TextScene(),
+                    new FreefallScene(),
+                    new JetpackScene(),  // Moved before desert
+                    new DesertScene(),
+                    new ChoiceScene(),
+                    new EndingScene()
+                ];
+                
+                // Start with first scene directly (no initial card)
+                this.scenes[0].init(this.renderer);
+                this.camera = this.scenes[0].camera;
+                this.render();
+                
+                // No initial card - scene plays directly
+            }
+            
+            showSceneCard() {
+                const card = document.getElementById('scene-card');
+                
+                // Restore original card format if it was modified by choice scene
+                this.restoreOriginalCard();
+                
+                // Map current scene index to transition index
+                let transitionIndex;
+                if (this.currentSceneIndex === 0) {
+                    transitionIndex = 0; // Show freefall card
+                } else if (this.currentSceneIndex === 1) {
+                    transitionIndex = 1; // Show jetpack card
+                } else if (this.currentSceneIndex === 2) {
+                    transitionIndex = 2; // Show desert card
+                } else if (this.currentSceneIndex === 3) {
+                    transitionIndex = 3; // Show choice card
+                } else if (this.currentSceneIndex === 4) {
+                    transitionIndex = 4; // Show final card
+                }
+                
+                const transition = this.sceneTransitions[transitionIndex];
+                var img_source = ["public/freefall.jpg","public/jetpack.jpg","public/desert.jpg","public/choice.jpg","public/final.jpg"]
+                
+                if (transition) {
+                    document.getElementById('card-title').textContent = transition.title;
+                    document.getElementById('card-description').textContent = transition.description;
+                    
+                    // Update the image source
+                    const cardImage = card.querySelector('img');
+                    if (cardImage) {
+                        cardImage.src = img_source[transitionIndex];
+                        cardImage.alt = transition.title;
+                        
+                        // Add error handler for missing images
+                        cardImage.onerror = function() {
+                            this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200"%3E%3Cdefs%3E%3ClinearGradient id="fallback" x1="0%" y1="0%" x2="100%" y2="100%"%3E%3Cstop offset="0%" style="stop-color:%23667eea;stop-opacity:1" /%3E%3Cstop offset="100%" style="stop-color:%23764ba2;stop-opacity:1" /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width="300" height="200" fill="url(%23fallback)"/%3E%3Ctext x="150" y="100" font-family="Arial" font-size="18" fill="white" text-anchor="middle" dy=".3em"%3EPreview Image%3C/text%3E%3C/svg%3E';
+                        };
+                    }
+                    
+                    card.classList.add('active');
+                }
+            }
+            
+            restoreOriginalCard() {
+                const card = document.getElementById('scene-card');
+                if (!card.innerHTML.includes('card-title')) {
+                    card.innerHTML = `
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Cdefs%3E%3ClinearGradient id='default' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23667eea;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23764ba2;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='300' height='200' fill='url(%23default)'/%3E%3Ctext x='150' y='100' font-family='Arial' font-size='18' fill='white' text-anchor='middle' dy='.3em'%3EDefault Preview%3C/text%3E%3C/svg%3E" alt="Next Scene">
+                        <h3 id="card-title">Welcome to Your Journey!</h3>
+                        <p id="card-description">Ready to begin an amazing adventure? Click next to start exploring!</p>
+                        <button id="next-btn" class="next-btn">Next →</button>
+                    `;
+                    
+                    // Re-attach the event listener
+                    document.getElementById('next-btn').addEventListener('click', () => this.nextScene());
+                }
+            }
+            
+            hideSceneCard() {
+                document.getElementById('scene-card').classList.remove('active');
+            }
+            
+            nextScene() {
+                this.hideSceneCard();
+                
+                if (this.currentSceneIndex < this.scenes.length - 1) {
+                    // Stop any audio from previous scene
+                    if (this.scenes[this.currentSceneIndex] && this.scenes[this.currentSceneIndex].currentAudio) {
+                        this.scenes[this.currentSceneIndex].currentAudio.pause();
+                    }
+                    
+                    this.currentSceneIndex++;
+                    this.scenes[this.currentSceneIndex].init(this.renderer);
+                    this.camera = this.scenes[this.currentSceneIndex].camera;
+                    
+                    // Handle scene completion timing
+                    if (this.currentSceneIndex === 1) {
+                        // Freefall scene - card appears when 60 seconds complete
+                        // FreefallScene handles its own completion
+                    } 
+                    else if (this.currentSceneIndex === 2 || this.currentSceneIndex === 3) {
+                        // Jetpack and Desert scenes - show card after exploration time
+                        setTimeout(() => this.showSceneCard(), 10000);
+                    }
+                    else if (this.currentSceneIndex === 4) {
+                        // Choice scene handles its own UI and shows final card
+                    }
+                    else if (this.currentSceneIndex === 5) {
+                        // Ending scene - no more cards needed
+                    }
+                }
+            }
+            
+            toggleCameraMode() {
+                if (this.scenes[this.currentSceneIndex].toggleCameraMode) {
+                    this.scenes[this.currentSceneIndex].toggleCameraMode();
+                }
+            }
+            
+            resetView() {
+                if (this.scenes[this.currentSceneIndex].resetView) {
+                    this.scenes[this.currentSceneIndex].resetView();
+                }
+            }
+            
+            toggleInstructions() {
+                const instructions = document.getElementById('instructions');
+                instructions.classList.toggle('show');
+            }
+            
+            onWindowResize() {
+                if (this.camera) {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                }
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+            
+            render() {
+                requestAnimationFrame(() => this.render());
+                
+                if (this.scenes[this.currentSceneIndex]) {
+                    this.scenes[this.currentSceneIndex].update();
+                    this.renderer.render(this.scenes[this.currentSceneIndex].scene, this.camera);
+                }
+            }
+        }
+        
+        // Base Scene Class
+        class BaseScene {
+            constructor() {
+                this.scene = new THREE.Scene();
+                this.camera = null;
+                this.controls = null;
+            }
+            
+            init(renderer) {
+                // Override in subclasses
+            }
+            
+            update() {
+                if (this.controls) {
+                    this.controls.update();
+                }
+            }
+            
+            resetView() {
+                // Override in subclasses
+            }
+        }
+        
+        // Scene 1: Text Scene (Original)
+        class TextScene extends BaseScene {
+            init(renderer) {
+                this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+                this.camera.position.set(0, -400, 600);
+                
+                this.scene.background = new THREE.Color(0xf0f0f0);
+                
+                // Import OrbitControls functionality manually
+                this.setupControls(renderer.domElement);
+                this.createText();
+                
+                this.controls.target.set(0, 0, 0);
+                this.controls.update();
+            }
+            
+            setupControls(domElement) {
+                // Simple orbit controls implementation
+                this.controls = {
+                    target: new THREE.Vector3(),
+                    spherical: new THREE.Spherical(),
+                    sphericalDelta: new THREE.Spherical(),
+                    scale: 1,
+                    panOffset: new THREE.Vector3(),
+                    update: () => {
+                        this.updateCamera();
+                    }
+                };
+                
+                this.setupMouseControls(domElement);
+                this.setupTouchControls(domElement);
+            }
+            
+            setupMouseControls(domElement) {
+                let isMouseDown = false;
+                
+                domElement.addEventListener('mousedown', (event) => {
+                    isMouseDown = true;
+                    this.startPosition = { x: event.clientX, y: event.clientY };
+                });
+                
+                domElement.addEventListener('mousemove', (event) => {
+                    if (!isMouseDown) return;
+                    
+                    const deltaX = event.clientX - this.startPosition.x;
+                    const deltaY = event.clientY - this.startPosition.y;
+                    
+                    this.controls.sphericalDelta.theta = deltaX * 0.01;
+                    this.controls.sphericalDelta.phi = deltaY * 0.01;
+                    
+                    this.startPosition = { x: event.clientX, y: event.clientY };
+                });
+                
+                domElement.addEventListener('mouseup', () => {
+                    isMouseDown = false;
+                });
+                
+                domElement.addEventListener('wheel', (event) => {
+                    this.controls.scale *= (event.deltaY > 0) ? 1.1 : 0.9;
+                    this.controls.scale = Math.max(0.1, Math.min(10, this.controls.scale));
+                });
+            }
+            
+            setupTouchControls(domElement) {
+                let touches = [];
+                
+                domElement.addEventListener('touchstart', (event) => {
+                    touches = Array.from(event.touches);
+                });
+                
+                domElement.addEventListener('touchmove', (event) => {
+                    event.preventDefault();
+                    const currentTouches = Array.from(event.touches);
+                    
+                    if (currentTouches.length === 1 && touches.length === 1) {
+                        // Single touch - rotate
+                        const deltaX = currentTouches[0].clientX - touches[0].clientX;
+                        const deltaY = currentTouches[0].clientY - touches[0].clientY;
+                        
+                        this.controls.sphericalDelta.theta = deltaX * 0.01;
+                        this.controls.sphericalDelta.phi = deltaY * 0.01;
+                    } else if (currentTouches.length === 2 && touches.length === 2) {
+                        // Pinch to zoom
+                        const currentDistance = Math.hypot(
+                            currentTouches[0].clientX - currentTouches[1].clientX,
+                            currentTouches[0].clientY - currentTouches[1].clientY
+                        );
+                        const startDistance = Math.hypot(
+                            touches[0].clientX - touches[1].clientX,
+                            touches[0].clientY - touches[1].clientY
+                        );
+                        
+                        this.controls.scale *= startDistance / currentDistance;
+                        this.controls.scale = Math.max(0.1, Math.min(10, this.controls.scale));
+                    }
+                    
+                    touches = currentTouches;
+                });
+                
+                domElement.addEventListener('touchend', () => {
+                    touches = [];
+                });
+            }
+            
+            updateCamera() {
+                // Apply rotation
+                this.controls.spherical.theta += this.controls.sphericalDelta.theta;
+                this.controls.spherical.phi += this.controls.sphericalDelta.phi;
+                this.controls.spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, this.controls.spherical.phi));
+                
+                // Apply zoom
+                const position = new THREE.Vector3();
+                position.setFromSpherical(this.controls.spherical);
+                position.multiplyScalar(600 * this.controls.scale);
+                position.add(this.controls.target);
+                
+                this.camera.position.copy(position);
+                this.camera.lookAt(this.controls.target);
+                
+                // Reset deltas
+                this.controls.sphericalDelta.set(0, 0, 0);
+            }
+            
+            createText() {
+                // Create text using canvas texture (more reliable than FontLoader in HTML environment)
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = 1024;
+                canvas.height = 512;
+                
+                context.font = 'Bold 60px Arial';
+                context.fillStyle = '#006699';
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+                
+                // Clear canvas
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw text
+                const lines = ['Happy Birthday', 'Kseniya'];
+                lines.forEach((line, index) => {
+                    context.fillText(line, canvas.width / 2, canvas.height / 2 + (index - 0.5) * 80);
+                });
+                
+                // Create texture from canvas
+                const texture = new THREE.CanvasTexture(canvas);
+                
+                // Create text mesh
+                const textGeometry = new THREE.PlaneGeometry(400, 200);
+                const textMaterial = new THREE.MeshBasicMaterial({ 
+                    map: texture,
+                    transparent: true,
+                    opacity: 1,
+                    side: 2
+                });
+                
+                const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+                textMesh.position.z = -150;
+                this.scene.add(textMesh);
+                
+                // Add wireframe outline (similar to original)
+                const outlineGeometry = new THREE.PlaneGeometry(420, 220);
+                const outlineMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0x006699,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0,
+                    side:2
+                });
+                const outlineMesh = new THREE.Mesh(outlineGeometry, outlineMaterial);
+                outlineMesh.position.z = -149;
+                this.scene.add(outlineMesh);
+                
+                // Add some 3D cubes as decoration
+                for (let i = 0; i < 10; i++) {
+                    const geometry = new THREE.BoxGeometry(20, 20, 20);
+                    const material = new THREE.MeshBasicMaterial({ 
+                        color: Math.random() * 0xffffff 
+                    });
+                    const cube = new THREE.Mesh(geometry, material);
+                    
+                    cube.position.set(
+                        (Math.random() - 0.5) * 800,
+                        (Math.random() - 0.5) * 400,
+                        (Math.random() - 0.5) * 400
+                    );
+                    
+                    this.scene.add(cube);
+                }
+            }
+            
+            resetView() {
+                this.controls.spherical.set(1, Math.PI / 2, 600);
+                this.controls.scale = 1;
+                this.controls.target.set(0, 0, 0);
+            }
+        }
+        
+        // Scene 2: Freefall Scene
+        class FreefallScene extends BaseScene {
+            init(renderer) {
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+                this.camera.position.set(0, 1000, 0);
+                
+                this.scene.background = new THREE.Color(0x87CEEB);
+                this.scene.fog = new THREE.Fog(0x87CEEB, 100, 2000);
+                
+                this.setupFreelookControls(renderer.domElement);
+                this.createClouds();
+                this.createRain();
+                this.playAudio('/public/freefall-music.mp3'); // User needs to provide this file
+                
+                // Start timer
+                this.startTime = Date.now();
+                this.duration = 56000; // 60 seconds
+                this.completed = false;
+            }
+            
+            setupFreelookControls(domElement) {
+                this.rotation = { x: 0, y: 0 };
+                this.velocity = { x: 0, y: -50, z: 0 }; // Falling
+                
+                this.isMouseDown = false;
+                this.touches = [];
+                
+                domElement.addEventListener('mousedown', (e) => {
+                    this.isMouseDown = true;
+                    this.lastMouse = { x: e.clientX, y: e.clientY };
+                });
+                
+                domElement.addEventListener('mousemove', (e) => {
+                    if (!this.isMouseDown) return;
+                    
+                    const deltaX = e.clientX - this.lastMouse.x;
+                    const deltaY = e.clientY - this.lastMouse.y;
+                    
+                    this.rotation.y += deltaX * 0.002;
+                    this.rotation.x += deltaY * 0.002;
+                    this.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, this.rotation.x));
+                    
+                    this.lastMouse = { x: e.clientX, y: e.clientY };
+                });
+                
+                domElement.addEventListener('mouseup', () => {
+                    this.isMouseDown = false;
+                });
+                
+                // Touch controls
+                domElement.addEventListener('touchstart', (e) => {
+                    this.touches = Array.from(e.touches);
+                });
+                
+                domElement.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const currentTouches = Array.from(e.touches);
+                    
+                    if (currentTouches.length === 1 && this.touches.length === 1) {
+                        const deltaX = currentTouches[0].clientX - this.touches[0].clientX;
+                        const deltaY = currentTouches[0].clientY - this.touches[0].clientY;
+                        
+                        this.rotation.y += deltaX * 0.002;
+                        this.rotation.x += deltaY * 0.002;
+                        this.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, this.rotation.x));
+                    }
+                    
+                    this.touches = currentTouches;
+                });
+            }
+            
+            createClouds() {
+                this.clouds = [];
+                
+                for (let i = 0; i < 50; i++) {
+                    const cloudGeometry = new THREE.SphereGeometry(Math.random() * 50 + 30, 8, 6);
+                    const cloudMaterial = new THREE.MeshBasicMaterial({ 
+                        color: 0xffffff,
+                        transparent: true,
+                        opacity: 0.6
+                    });
+                    
+                    const cloud = new THREE.Mesh(cloudGeometry, cloudMaterial);
+                    cloud.position.set(
+                        (Math.random() - 0.5) * 4000,
+                        Math.random() * 2000 - 1000,
+                        (Math.random() - 0.5) * 4000
+                    );
+                    
+                    this.scene.add(cloud);
+                    this.clouds.push(cloud);
+                }
+            }
+            
+            createRain() {
+                this.raindrops = [];
+                const rainGeometry = new THREE.BufferGeometry();
+                const rainPositions = [];
+                
+                for (let i = 0; i < 1000; i++) {
+                    rainPositions.push(
+                        (Math.random() - 0.5) * 2000,
+                        Math.random() * 2000,
+                        (Math.random() - 0.5) * 2000
+                    );
+                }
+                
+                rainGeometry.setAttribute('position', new THREE.Float32BufferAttribute(rainPositions, 3));
+                
+                const rainMaterial = new THREE.PointsMaterial({
+                    color: 0x0099ff,
+                    size: 2,
+                    transparent: true,
+                    opacity: 0.7
+                });
+                
+                this.rain = new THREE.Points(rainGeometry, rainMaterial);
+                this.scene.add(this.rain);
+            }
+            
+            playAudio(filename) {
+                // Note: User needs to provide audio files
+                try {
+                    const audio = new Audio(filename);
+                    audio.loop = true;
+                    audio.play();
+                    this.currentAudio = audio;
+                } catch (error) {
+                    console.log('Audio file not found:', filename);
+                }
+            }
+            
+            update() {
+                // Update camera rotation
+                this.camera.rotation.order = 'YXZ';
+                this.camera.rotation.y = this.rotation.y;
+                this.camera.rotation.x = this.rotation.x;
+                
+                // Simulate falling
+                this.camera.position.y += this.velocity.y * 0.01;
+                
+                // Move rain with null check
+                if (this.rain && this.rain.geometry && this.rain.geometry.attributes.position) {
+                    const positions = this.rain.geometry.attributes.position.array;
+                    for (let i = 1; i < positions.length; i += 3) {
+                        positions[i] -= 5; // Fall speed
+                        if (positions[i] < -1000) {
+                            positions[i] = 1000; // Reset to top
+                        }
+                    }
+                    this.rain.geometry.attributes.position.needsUpdate = true;
+                }
+                
+                // Animate clouds with null check
+                if (this.clouds) {
+                    this.clouds.forEach(cloud => {
+                        if (cloud && cloud.rotation) {
+                            cloud.rotation.y += 0.001;
+                        }
+                    });
+                }
+                
+                // Check if 60 seconds passed
+                if (this.startTime && Date.now() - this.startTime > this.duration && !this.completed) {
+                    if (this.currentAudio) {
+                        this.currentAudio.pause();
+                    }
+                    this.completed = true;
+                    // Signal completion to scene manager - show jetpack card
+                    if (window.sceneManager && window.sceneManager.currentSceneIndex === 1) {
+                        setTimeout(() => window.sceneManager.showSceneCard(), 1000);
+                    }
+                }
+            }
+            
+            resetView() {
+                this.camera.position.set(0, 1000, 0);
+                this.rotation = { x: 0, y: 0 };
+                this.startTime = Date.now();
+            }
+        }
+        
+        // Scene 3: Desert Scene
+        class DesertScene extends BaseScene {
+            init(renderer) {
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+                this.camera.position.set(0, 50, 200);
+                
+                this.scene.background = new THREE.Color(0xffd89b);
+                
+                this.cameraMode = 'third'; // 'third' or 'top'
+                this.setupCameraControls(renderer.domElement);
+                this.createDesert();
+                this.createCharacter();
+                this.createCenterImage();
+            }
+            
+            setupCameraControls(domElement) {
+                this.walkSpeed = 2;
+                this.characterPosition = new THREE.Vector3(0, 0, 200);
+                this.keys = {};
+                
+                window.addEventListener('keydown', (e) => {
+                    this.keys[e.code] = true;
+                });
+                
+                window.addEventListener('keyup', (e) => {
+                    this.keys[e.code] = false;
+                });
+                
+                // Touch controls for mobile
+                this.setupMobileWalkControls(domElement);
+            }
+            
+            setupMobileWalkControls(domElement) {
+                // Virtual joystick for mobile
+                let touchStart = null;
+                
+                domElement.addEventListener('touchstart', (e) => {
+                    touchStart = {
+                        x: e.touches[0].clientX,
+                        y: e.touches[0].clientY
+                    };
+                });
+                
+                domElement.addEventListener('touchmove', (e) => {
+                    if (!touchStart) return;
+                    e.preventDefault();
+                    
+                    const deltaX = e.touches[0].clientX - touchStart.x;
+                    const deltaY = e.touches[0].clientY - touchStart.y;
+                    
+                    // Convert touch to movement
+                    if (Math.abs(deltaX) > 20 || Math.abs(deltaY) > 20) {
+                        this.characterPosition.x += deltaX * 0.1;
+                        this.characterPosition.z -= deltaY * 0.1;
+                        
+                        touchStart = {
+                            x: e.touches[0].clientX,
+                            y: e.touches[0].clientY
+                        };
+                    }
+                });
+                
+                domElement.addEventListener('touchend', () => {
+                    touchStart = null;
+                });
+            }
+            
+            createDesert() {
+                // Ground
+                const groundGeometry = new THREE.PlaneGeometry(2000, 2000);
+                const groundMaterial = new THREE.MeshBasicMaterial({ color: 0xd2691e });
+                const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+                ground.rotation.x = -Math.PI / 2;
+                this.scene.add(ground);
+                
+                // Sand dunes
+                for (let i = 0; i < 20; i++) {
+                    const duneGeometry = new THREE.ConeGeometry(Math.random() * 50 + 20, Math.random() * 30 + 10, 8);
+                    const duneMaterial = new THREE.MeshBasicMaterial({ color: 0xdaa520 });
+                    const dune = new THREE.Mesh(duneGeometry, duneMaterial);
+                    
+                    dune.position.set(
+                        (Math.random() - 0.5) * 1500,
+                        0,
+                        (Math.random() - 0.5) * 1500
+                    );
+                    
+                    this.scene.add(dune);
+                }
+            }
+            
+            createCharacter() {
+                // Simple character representation using CylinderGeometry (CapsuleGeometry not available in r128)
+                const characterGeometry = new THREE.CylinderGeometry(5, 5, 20, 8);
+                const characterMaterial = new THREE.MeshBasicMaterial({ color: 0x8b4513 });
+                this.character = new THREE.Mesh(characterGeometry, characterMaterial);
+                this.character.position.copy(this.characterPosition);
+                this.character.position.y = 10; // Lift off ground
+                this.scene.add(this.character);
+                
+                // Add a head
+                const headGeometry = new THREE.SphereGeometry(7, 8, 6);
+                const headMaterial = new THREE.MeshBasicMaterial({ color: 0xffdbac });
+                this.characterHead = new THREE.Mesh(headGeometry, headMaterial);
+                this.characterHead.position.copy(this.characterPosition);
+                this.characterHead.position.y = 25;
+                this.scene.add(this.characterHead);
+            }
+            
+            createCenterImage() {
+                // Placeholder for center image
+                const imageGeometry = new THREE.PlaneGeometry(100, 100);
+                const imageMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0xff6b6b,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                this.centerImage = new THREE.Mesh(imageGeometry, imageMaterial);
+                this.centerImage.position.set(0, 50, 0);
+                this.scene.add(this.centerImage);
+            }
+            
+            toggleCameraMode() {
+                this.cameraMode = this.cameraMode === 'third' ? 'top' : 'third';
+            }
+            
+            update() {
+                // Handle keyboard movement
+                if (this.keys['KeyW'] || this.keys['ArrowUp']) {
+                    this.characterPosition.z -= this.walkSpeed;
+                }
+                if (this.keys['KeyS'] || this.keys['ArrowDown']) {
+                    this.characterPosition.z += this.walkSpeed;
+                }
+                if (this.keys['KeyA'] || this.keys['ArrowLeft']) {
+                    this.characterPosition.x -= this.walkSpeed;
+                }
+                if (this.keys['KeyD'] || this.keys['ArrowRight']) {
+                    this.characterPosition.x += this.walkSpeed;
+                }
+                
+                // Update character position with null checks
+                if (this.character) {
+                    this.character.position.copy(this.characterPosition);
+                    this.character.position.y = 10;
+                }
+                
+                if (this.characterHead) {
+                    this.characterHead.position.copy(this.characterPosition);
+                    this.characterHead.position.y = 25;
+                }
+                
+                // Update camera based on mode
+                if (this.cameraMode === 'third') {
+                    this.camera.position.set(
+                        this.characterPosition.x,
+                        this.characterPosition.y + 50,
+                        this.characterPosition.z + 100
+                    );
+                    this.camera.lookAt(this.characterPosition);
+                } else {
+                    this.camera.position.set(
+                        this.characterPosition.x,
+                        this.characterPosition.y + 300,
+                        this.characterPosition.z
+                    );
+                    this.camera.lookAt(this.characterPosition);
+                }
+                
+                // Rotate center image with null check
+                if (this.centerImage) {
+                    this.centerImage.rotation.y += 0.01;
+                }
+            }
+            
+            resetView() {
+                this.characterPosition.set(0, 0, 200);
+                this.cameraMode = 'third';
+            }
+        }
+        
+        // Scene 4: Jetpack Scene
+        class JetpackScene extends BaseScene {
+            init(renderer) {
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+                this.camera.position.set(0, 0, 0);
+                
+                this.scene.background = new THREE.Color(0x87CEEB);
+                
+                this.setupJetpackControls();
+                this.createHeartCloud();
+                this.createParticles();
+                
+                this.altitude = 0;
+                this.speed = 5;
+            }
+            
+            setupJetpackControls() {
+                this.rotation = { x: 0, y: 0 };
+                this.velocity = { x: 0, y: 5, z: 0 };
+            }
+            
+            createHeartCloud() {
+                // Create heart shape using curves
+                const heartShape = new THREE.Shape();
+                const x = 0, y = 0;
+                
+                heartShape.moveTo( x + 5, y + 5 );
+                heartShape.bezierCurveTo( x + 5, y + 5, x + 4, y, x, y );
+                heartShape.bezierCurveTo( x - 6, y, x - 6, y + 3.5, x - 6, y + 3.5 );
+                heartShape.bezierCurveTo( x - 6, y + 5.5, x - 4, y + 7.5, x, y + 10 );
+                heartShape.bezierCurveTo( x + 4, y + 7.5, x + 6, y + 5.5, x + 6, y + 3.5 );
+                heartShape.bezierCurveTo( x + 6, y + 3.5, x + 6, y, x, y );
+                heartShape.bezierCurveTo( x + 4, y, x + 5, y + 5, x + 5, y + 5 );
+                
+                const heartGeometry = new THREE.ExtrudeGeometry(heartShape, {
+                    depth: 20,
+                    bevelEnabled: true,
+                    bevelSegments: 2,
+                    steps: 2,
+                    bevelSize: 1,
+                    bevelThickness: 1
+                });
+                
+                const heartMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0xff69b4,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                this.heartCloud = new THREE.Mesh(heartGeometry, heartMaterial);
+                this.heartCloud.position.set(0, 2000, 0);
+                this.heartCloud.scale.set(50, 50, 50);
+                this.scene.add(this.heartCloud);
+            }
+            
+            createParticles() {
+                // Jetpack exhaust particles
+                const particleGeometry = new THREE.BufferGeometry();
+                const particlePositions = [];
+                
+                for (let i = 0; i < 500; i++) {
+                    particlePositions.push(
+                        (Math.random() - 0.5) * 20,
+                        -Math.random() * 50,
+                        (Math.random() - 0.5) * 20
+                    );
+                }
+                
+                particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(particlePositions, 3));
+                
+                const particleMaterial = new THREE.PointsMaterial({
+                    color: 0xff4500,
+                    size: 3,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                this.particles = new THREE.Points(particleGeometry, particleMaterial);
+                this.scene.add(this.particles);
+            }
+            
+            update() {
+                // Move upward
+                this.camera.position.y += this.speed;
+                this.altitude += this.speed;
+                
+                // Update particles to follow camera with null check
+                if (this.particles && this.particles.position) {
+                    this.particles.position.copy(this.camera.position);
+                    this.particles.position.y -= 30;
+                }
+                
+                // Animate particles with null checks
+                if (this.particles && this.particles.geometry && this.particles.geometry.attributes.position) {
+                    const positions = this.particles.geometry.attributes.position.array;
+                    for (let i = 1; i < positions.length; i += 3) {
+                        positions[i] -= 2; // Downward movement
+                        if (positions[i] < -50) {
+                            positions[i] = 0;
+                        }
+                    }
+                    this.particles.geometry.attributes.position.needsUpdate = true;
+                }
+                
+                // Rotate heart with null check
+                if (this.heartCloud && this.heartCloud.rotation) {
+                    this.heartCloud.rotation.y += 0.02;
+                }
+                
+                // Look at heart with null check
+                if (this.heartCloud && this.heartCloud.position) {
+                    this.camera.lookAt(this.heartCloud.position);
+                }
+                
+                // Check if reached heart
+                if (this.altitude > 1900) {
+                    // Ready to transition to next scene
+                }
+            }
+            
+            resetView() {
+                this.camera.position.set(0, 0, 0);
+                this.altitude = 0;
+            }
+        }
+        
+        // Scene 5: Choice Scene
+        class ChoiceScene extends BaseScene {
+            init(renderer) {
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.camera.position.set(0, 0, 100);
+                
+                this.scene.background = new THREE.Color(0x2c3e50);
+                
+                this.choiceMade = false;
+                this.showingText = false;
+                this.setupControls(renderer.domElement);
+                this.createChoiceButtons();
+                this.showChoices();
+            }
+            
+            setupControls(domElement) {
+                // Simple orbit controls for text viewing
+                this.rotation = { x: 0, y: 0 };
+                this.isMouseDown = false;
+                this.touches = [];
+                
+                domElement.addEventListener('mousedown', (e) => {
+                    if (!this.showingText) return;
+                    this.isMouseDown = true;
+                    this.lastMouse = { x: e.clientX, y: e.clientY };
+                });
+                
+                domElement.addEventListener('mousemove', (e) => {
+                    if (!this.isMouseDown || !this.showingText) return;
+                    
+                    const deltaX = e.clientX - this.lastMouse.x;
+                    const deltaY = e.clientY - this.lastMouse.y;
+                    
+                    this.rotation.y += deltaX * 0.01;
+                    this.rotation.x += deltaY * 0.01;
+                    this.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, this.rotation.x));
+                    
+                    this.lastMouse = { x: e.clientX, y: e.clientY };
+                });
+                
+                domElement.addEventListener('mouseup', () => {
+                    this.isMouseDown = false;
+                });
+                
+                // Touch controls
+                domElement.addEventListener('touchstart', (e) => {
+                    if (!this.showingText) return;
+                    this.touches = Array.from(e.touches);
+                });
+                
+                domElement.addEventListener('touchmove', (e) => {
+                    if (!this.showingText) return;
+                    e.preventDefault();
+                    const currentTouches = Array.from(e.touches);
+                    
+                    if (currentTouches.length === 1 && this.touches.length === 1) {
+                        const deltaX = currentTouches[0].clientX - this.touches[0].clientX;
+                        const deltaY = currentTouches[0].clientY - this.touches[0].clientY;
+                        
+                        this.rotation.y += deltaX * 0.01;
+                        this.rotation.x += deltaY * 0.01;
+                        this.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, this.rotation.x));
+                    }
+                    
+                    this.touches = currentTouches;
+                });
+            }
+            
+            createChoiceButtons() {
+                // This scene will primarily use UI elements initially
+                const choiceCard = document.getElementById('scene-card');
+                choiceCard.innerHTML = `
+                    <h3>Choose Your Ending</h3>
+                    <p>Two paths await you. Which story will you choose?</p>
+                    <button class="option-btn" id="option-a">✨ Tejas</button>
+                    <button class="option-btn" id="option-b">🥱 Others</button>
+                `;
+                
+                document.getElementById('option-a').addEventListener('click', () => {
+                    this.chooseOption('a');
+                });
+                
+                document.getElementById('option-b').addEventListener('click', () => {
+                    this.chooseOption('b');
+                });
+            }
+            
+            showChoices() {
+                document.getElementById('scene-card').classList.add('active');
+            }
+            
+            chooseOption(option) {
+                document.getElementById('scene-card').classList.remove('active');
+                window.chosenPath = option;
+                this.choiceMade = true;
+                
+                // Start rendering text scene with music
+                setTimeout(() => {
+                    this.createChoiceText(option);
+                    this.playChoiceMusic(option);
+                    this.showingText = true;
+                    
+                    // Show final card after text is displayed
+                    setTimeout(() => {
+                        if (window.sceneManager) {
+                            window.sceneManager.showSceneCard();
+                        }
+                    }, 8000); // 8 seconds to read the text
+                }, 1000);
+            }
+            
+            createChoiceText(option) {
+                // Clear scene
+                while(this.scene.children.length > 0) {
+                    this.scene.remove(this.scene.children[0]);
+                }
+                
+                let textLines = [];
+                if (option === 'a') {
+                    textLines = ['Woohooo ! Tejas', 'got the permission to love kseniya', '', 'Bound by Fate', 'Hearts Aligned!', '', 'Weaving your', 'timeless love story...'];
+                    this.scene.background = new THREE.Color(0x4a0e4e);
+                } else {
+                    textLines = ['Looks like Xavier won','Frayed by Time', 'Drifting Apart...', '', 'Unraveling your', 'forgotten story...'];
+                    this.scene.background = new THREE.Color(0x0f1419);
+                }
+                
+                // Create text using canvas texture (same as TextScene)
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = 1024;
+                canvas.height = 512;
+                
+                context.font = 'Bold 48px Arial';
+                context.fillStyle = option === 'a' ? '#ff69b4' : '#00bfff';
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+                
+                // Clear canvas
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw text lines
+                textLines.forEach((line, index) => {
+                    if (line.trim()) {
+                        context.fillText(line, canvas.width / 2, canvas.height / 2 + (index - 2) * 60);
+                    }
+                });
+                
+                // Create texture from canvas
+                const texture = new THREE.CanvasTexture(canvas);
+                
+                // Create text mesh
+                const textGeometry = new THREE.PlaneGeometry(400, 200);
+                const textMaterial = new THREE.MeshBasicMaterial({ 
+                    map: texture,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                
+                this.textMesh = new THREE.Mesh(textGeometry, textMaterial);
+                this.textMesh.position.z = -150;
+                this.scene.add(this.textMesh);
+                
+                // Add wireframe outline
+                const outlineGeometry = new THREE.PlaneGeometry(420, 220);
+                const outlineMaterial = new THREE.MeshBasicMaterial({ 
+                    color: option === 'a' ? 0xff69b4 : 0x00bfff,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0
+                });
+                const outlineMesh = new THREE.Mesh(outlineGeometry, outlineMaterial);
+                outlineMesh.position.z = -149;
+                this.scene.add(outlineMesh);
+                
+                // Add decorative elements
+                for (let i = 0; i < 15; i++) {
+                    const geometry = option === 'a' ? 
+                        new THREE.OctahedronGeometry(15) : 
+                        new THREE.TetrahedronGeometry(15);
+                    const material = new THREE.MeshBasicMaterial({ 
+                        color: option === 'a' ? 0xff1493 : 0x1e90ff,
+                        transparent: true,
+                        opacity: 0.8
+                    });
+                    const shape = new THREE.Mesh(geometry, material);
+                    
+                    shape.position.set(
+                        (Math.random() - 0.5) * 800,
+                        (Math.random() - 0.5) * 400,
+                        (Math.random() - 0.5) * 400
+                    );
+                    
+                    this.scene.add(shape);
+                    if (!this.decorativeShapes) this.decorativeShapes = [];
+                    this.decorativeShapes.push(shape);
+                }
+            }
+            
+            playChoiceMusic(option) {
+                try {
+                    const musicFile = option === 'a' ? '/public/magical-choice.mp3' : '/public/space-choice.mp3';
+                    const audio = new Audio(musicFile);
+                    audio.loop = true;
+                    audio.play();
+                    this.currentAudio = audio;
+                } catch (error) {
+                    console.log('Choice music file not found');
+                }
+            }
+            
+            update() {
+                if (this.showingText) {
+                    // Update camera rotation
+                    this.camera.rotation.order = 'YXZ';
+                    this.camera.rotation.y = this.rotation.y;
+                    this.camera.rotation.x = this.rotation.x;
+                    
+                    // Animate text
+                    if (this.textMesh) {
+                        this.textMesh.rotation.z += 0.002;
+                    }
+                    
+                    // Animate decorative shapes
+                    if (this.decorativeShapes) {
+                        this.decorativeShapes.forEach((shape, index) => {
+                            shape.rotation.x += 0.01;
+                            shape.rotation.y += 0.015;
+                            shape.position.y += Math.sin(Date.now() * 0.001 + index) * 0.5;
+                        });
+                    }
+                } else {
+                    // Simple rotating background elements while showing choices
+                    const time = Date.now() * 0.001;
+                    this.camera.position.x = Math.sin(time) * 10;
+                    this.camera.position.z = Math.cos(time) * 10 + 100;
+                    this.camera.lookAt(0, 0, 0);
+                }
+            }
+            
+            resetView() {
+                this.rotation = { x: 0, y: 0 };
+                this.choiceMade = false;
+                this.showingText = false;
+                if (this.currentAudio) {
+                    this.currentAudio.pause();
+                }
+            }
+        }
+        
+        // Scene 6: Ending Scene
+        class EndingScene extends BaseScene {
+            init(renderer) {
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.camera.position.set(0, 0, 100);
+                
+                this.scene.background = new THREE.Color(0x1a1a2e);
+                
+                this.createEndingText();
+                this.playEndingMusic();
+            }
+            
+            createEndingText() {
+                const chosenPath = window.chosenPath || 'a';
+                
+                let endingLines = [];
+                let musicFile = '';
+                
+                if (chosenPath === 'a') {
+                    endingLines = [
+                        'Happy 23rd Birthday, KSeniya! ✨',
+                        '',
+                        'May your life is filled',
+                        'with wonder, joy, and endless adventures.',
+                        '',
+                        'I love you!'
+                    ];
+                    musicFile = 'magical-ending.mp3';
+                } else {
+                    endingLines = [
+                        'Happy 23rd Birthday, KSeniya! 🚀',
+                        '',
+                        'Reach for the stars and beyond!',
+                        'Your dreams are the stars that guide you!',
+                        '',
+                        'All the Very Best. Take care.'
+                    ];
+                    musicFile = 'space-ending.mp3';
+                }
+                
+                // Create text using canvas texture
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = 1024;
+                canvas.height = 768;
+                
+                context.font = 'Bold 36px Arial';
+                context.fillStyle = '#ffffff';
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+                
+                // Clear canvas with dark background
+                context.fillStyle = '#1a1a2e';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw text lines
+                context.fillStyle = '#ffffff';
+                endingLines.forEach((line, index) => {
+                    if (line.trim()) { // Skip empty lines
+                        context.fillText(line, canvas.width / 2, canvas.height / 2 + (index - 2.5) * 60);
+                    }
+                });
+                
+                // Create texture from canvas
+                const texture = new THREE.CanvasTexture(canvas);
+                
+                // Create text display
+                const textGeometry = new THREE.PlaneGeometry(600, 450);
+                const textMaterial = new THREE.MeshBasicMaterial({ 
+                    map: texture,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                
+                this.textMesh = new THREE.Mesh(textGeometry, textMaterial);
+                this.scene.add(this.textMesh);
+                
+                // Add floating particles
+                this.createEndingParticles();
+                
+                this.playAudio(musicFile);
+            }
+            
+            createEndingParticles() {
+                const particleGeometry = new THREE.BufferGeometry();
+                const particlePositions = [];
+                
+                for (let i = 0; i < 1000; i++) {
+                    particlePositions.push(
+                        (Math.random() - 0.5) * 1000,
+                        (Math.random() - 0.5) * 1000,
+                        (Math.random() - 0.5) * 1000
+                    );
+                }
+                
+                particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(particlePositions, 3));
+                
+                const particleMaterial = new THREE.PointsMaterial({
+                    color: 0xffd700,
+                    size: 2,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                this.endingParticles = new THREE.Points(particleGeometry, particleMaterial);
+                this.scene.add(this.endingParticles);
+            }
+            
+            playAudio(filename) {
+                try {
+                    const audio = new Audio("/public/final.mp3");
+                    audio.loop = true;
+                    audio.play();
+                    this.currentAudio = audio;
+                } catch (error) {
+                    console.log('Audio file not found:', filename);
+                }
+            }
+            
+            update() {
+                // Rotate text with null check
+                // if (this.textMesh && this.textMesh.rotation) {
+                //     this.textMesh.rotation.y += 0.005;
+                // }
+                
+                // Animate particles with null check
+                if (this.endingParticles && this.endingParticles.rotation) {
+                    this.endingParticles.rotation.y += 0.001;
+                    this.endingParticles.rotation.x += 0.0005;
+                }
+                
+                // Gentle camera movement
+                const time = Date.now() * 0.0005;
+                this.camera.position.x = Math.sin(time) * 20;
+                this.camera.position.y = Math.cos(time) * 10;
+                this.camera.lookAt(0, 0, 0);
+            }
+        }
+        
+        // Initialize the application
+        window.sceneManager = new SceneManager();
+    </script>
+</body>
+</html>
